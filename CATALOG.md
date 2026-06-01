@@ -1,0 +1,23 @@
+---
+title: Zig
+description: General-purpose language and toolchain for robust, optimal, reusable software
+keywords: zig,ziglang,compiler,toolchain,systems,c,cross-compilation
+---
+
+# Zig
+
+Zig is a general-purpose programming language and toolchain for maintaining
+robust, optimal, and reusable software. It ships its own optimizing compiler,
+build system, and a drop-in C/C++ cross-compiler — no external toolchain
+required.
+
+## What's included
+
+- **zig** — the Zig compiler, build system (`zig build`), test runner, and
+  bundled C/C++ cross-compiler (`zig cc` / `zig c++`)
+
+## Links
+
+- [Zig Documentation](https://ziglang.org/documentation/master/)
+- [Zig Downloads](https://ziglang.org/download/)
+- [Zig on Codeberg](https://codeberg.org/ziglang/zig)

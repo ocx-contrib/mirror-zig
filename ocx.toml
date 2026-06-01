@@ -1,0 +1,11 @@
+#:schema https://ocx.sh/schemas/project/v1.json
+# OCX project toolchain for the mirror-zig sibling repo.
+#
+# `cli` + `mirror` are the OCX pipeline tools (same pins as the other
+# mirror-* siblings). `uv` is added so the url_index generator command
+# (`uv run generate.py`) finds `uv` on PATH in CI and locally.
+
+[tools]
+cli = "dev.ocx.sh/ocx/cli:0.3.5-dev"
+mirror = "dev.ocx.sh/ocx/mirror:0.3.5-dev"
+uv = "ocx.sh/uv:0"
