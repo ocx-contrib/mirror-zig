@@ -14,7 +14,8 @@ source:
 # `zig-<arch>-<os>-<v>` (e.g. zig-x86_64-linux-0.15.1.tar.xz). Both forms are
 # matched per platform (newer ordering first). Archive layout is identical
 # across orderings, so a single asset_type applies.
-# Pass 1 — Linux only. darwin/windows staged below for Pass 2/3.
+# Pass 1 — Linux. Pass 2 — darwin (both arches; macOS ships .tar.xz with the
+# same archive layout). windows staged below for Pass 3.
 assets:
   linux/amd64:
     - "^zig-x86_64-linux-.*\\.tar\\.xz$"
@@ -22,12 +23,12 @@ assets:
   linux/arm64:
     - "^zig-aarch64-linux-.*\\.tar\\.xz$"
     - "^zig-linux-aarch64-.*\\.tar\\.xz$"
-#   darwin/amd64:
-#     - "^zig-x86_64-macos-.*\\.tar\\.xz$"
-#     - "^zig-macos-x86_64-.*\\.tar\\.xz$"
-#   darwin/arm64:
-#     - "^zig-aarch64-macos-.*\\.tar\\.xz$"
-#     - "^zig-macos-aarch64-.*\\.tar\\.xz$"
+  darwin/amd64:
+    - "^zig-x86_64-macos-.*\\.tar\\.xz$"
+    - "^zig-macos-x86_64-.*\\.tar\\.xz$"
+  darwin/arm64:
+    - "^zig-aarch64-macos-.*\\.tar\\.xz$"
+    - "^zig-macos-aarch64-.*\\.tar\\.xz$"
 #   windows/amd64:
 #     - "^zig-x86_64-windows-.*\\.zip$"
 #     - "^zig-windows-x86_64-.*\\.zip$"
@@ -68,12 +69,10 @@ platforms:
     runner: ubuntu-latest
   linux/arm64:
     runner: ubuntu-24.04-arm
-#   darwin/amd64:
-#     runner: macos-latest
-#     prefix: ["arch", "-x86_64"]
-#   darwin/arm64:
-#     runner: macos-latest
-#     shell: bash
+  darwin/amd64:
+    runner: macos-13
+  darwin/arm64:
+    runner: macos-14
 #   windows/amd64:
 #     runner: windows-latest
 #     shell: pwsh
