@@ -29,12 +29,12 @@ assets:
   darwin/arm64:
     - "^zig-aarch64-macos-.*\\.tar\\.xz$"
     - "^zig-macos-aarch64-.*\\.tar\\.xz$"
-#   windows/amd64:
-#     - "^zig-x86_64-windows-.*\\.zip$"
-#     - "^zig-windows-x86_64-.*\\.zip$"
-#   windows/arm64:
-#     - "^zig-aarch64-windows-.*\\.zip$"
-#     - "^zig-windows-aarch64-.*\\.zip$"
+  windows/amd64:
+    - "^zig-x86_64-windows-.*\\.zip$"
+    - "^zig-windows-x86_64-.*\\.zip$"
+  windows/arm64:
+    - "^zig-aarch64-windows-.*\\.zip$"
+    - "^zig-windows-aarch64-.*\\.zip$"
 
 asset_type:
   type: archive
@@ -75,12 +75,12 @@ platforms:
     runner: macos-14
   darwin/arm64:
     runner: macos-14
-#   windows/amd64:
-#     runner: windows-latest
-#     shell: pwsh
-#   windows/arm64:
-#     runner: windows-11-arm
-#     shell: pwsh
+  windows/amd64:
+    runner: windows-latest
+    shell: pwsh
+  windows/arm64:
+    runner: windows-11-arm
+    shell: pwsh
 
 notify:
   discord:
