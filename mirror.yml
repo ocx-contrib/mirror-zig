@@ -81,6 +81,10 @@ platforms:
   windows/arm64:
     runner: windows-11-arm
     shell: pwsh
+    exclude:
+      - version: "0.16.0"
+        reason: "aarch64-windows build-exe segfault"
+        severity: broken
 
 notify:
   discord:
