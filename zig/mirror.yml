@@ -1,0 +1,120 @@
+extends: ../mirror-base.yml
+
+name: zig
+
+# Logical index package `ziglang/zig` at the physical path
+# `ghcr.io/ocx-contrib/ziglang/zig` — slash segments, never hyphen-flattened.
+# The first segment must be this repo's own GitHub owner: GITHUB_TOKEN only
+# authorises packages owned by the repo the workflow runs in.
+#
+# Succeeds the flat `ocx.sh/zig` coordinate this repository published before the
+# grouped layout, the same way mirror-kitware/cmake succeeds mirror-cmake.
+target:
+  registry: ghcr.io
+  repository: ocx-contrib/ziglang/zig
+
+# Zig ships no GitHub release assets — the GitHub repo moved to Codeberg and
+# carries only a source bootstrap tarball. The canonical download index is
+# `https://ziglang.org/download/index.json`; scripts/generate.py reshapes it
+# into a url_index.
+#
+# `command` resolves against THIS spec's directory, so the path is
+# `scripts/generate.py` and not `zig/scripts/generate.py`.
+source:
+  type: url_index
+  generator:
+    command: ["uv", "run", "scripts/generate.py"]
+    timeout_seconds: 240
+
+# ─── libc gate (Phase 3.5) — the evidence, not the conclusion ───────────────
+#
+# Zig is self-hosted and links its Linux releases fully statically — upstream
+# publishes ONE Linux build per arch and no musl/glibc split to choose between.
+# Byte-measured 2026-08-01 on `zig` extracted from both Linux tarballs:
+#
+#   zig-x86_64-linux-<v>.tar.xz    ELF x86-64, statically linked
+#                                  readelf -l | grep INTERP → (none)
+#                                  readelf -d | grep NEEDED → (none)
+#   zig-aarch64-linux-<v>.tar.xz   ELF aarch64, statically linked, same
+#
+# No PT_INTERP and no DT_NEEDED means the artifact requires nothing of the
+# host, so both Linux keys are BARE — no `+libc.*` suffix. The container legs
+# (ubuntu + alpine + fedora) in ../mirror-base.yml are what turn that claim
+# into evidence rather than an assertion.
+#
+# ─── Filename ordering — the trap ───────────────────────────────────────────
+#
+# The download filename flipped arch and os mid-range: 0.14.0 ships
+# `zig-<os>-<arch>-<v>` (zig-linux-x86_64-0.14.0.tar.xz); 0.14.1+ ships
+# `zig-<arch>-<os>-<v>` (zig-x86_64-linux-0.15.1.tar.xz). BOTH forms are
+# matched per platform, newer ordering first. Archive layout is identical
+# across orderings, so a single asset_type covers the whole range.
+#
+# The anchored ^…$ regexes keep the neighbours out — the upstream index also
+# carries armv7a/riscv64/powerpc64le/x86/loongarch tarballs plus `src` and
+# `bootstrap`, none of which the generator emits. Resolution verified BOTH ways
+# across EVERY in-range release: each of the six keys matches EXACTLY one
+# asset at the floor (0.14.0), across the ordering flip (0.14.1) and at the
+# newest release. A pattern matching zero is silently skipped, not an error —
+# it would yield a green run with a missing platform.
+assets:
+  linux/amd64:
+    - "^zig-x86_64-linux-.*\\.tar\\.xz$"
+    - "^zig-linux-x86_64-.*\\.tar\\.xz$"
+  linux/arm64:
+    - "^zig-aarch64-linux-.*\\.tar\\.xz$"
+    - "^zig-linux-aarch64-.*\\.tar\\.xz$"
+  darwin/amd64:
+    - "^zig-x86_64-macos-.*\\.tar\\.xz$"
+    - "^zig-macos-x86_64-.*\\.tar\\.xz$"
+  darwin/arm64:
+    - "^zig-aarch64-macos-.*\\.tar\\.xz$"
+    - "^zig-macos-aarch64-.*\\.tar\\.xz$"
+  windows/amd64:
+    - "^zig-x86_64-windows-.*\\.zip$"
+    - "^zig-windows-x86_64-.*\\.zip$"
+  windows/arm64:
+    - "^zig-aarch64-windows-.*\\.zip$"
+    - "^zig-windows-aarch64-.*\\.zip$"
+
+asset_type:
+  # Every tarball/zip wraps its payload in a single versioned directory
+  # (`zig-x86_64-linux-0.15.1/`), so one component is stripped to put `zig`,
+  # `lib/` and `doc/` at the content root.
+  type: archive
+  strip_components: 1
+
+metadata:
+  default: metadata.json
+
+catalog:
+  # Resolves against this spec's own directory, and keeping the logo here puts
+  # it inside this workflow's `zig/**` path trigger — a repo-root logo.* sits in
+  # no path filter and replacing it would publish nothing.
+  # CATALOG.md is found by the default probe beside this file.
+  logo: logo.svg
+
+versions:
+  # 0.14.0 is the floor — the oldest release whose index entry carries all six
+  # published platforms, `aarch64-windows` included.
+  min: "0.14.0"
+  new_per_run: 5
+  poll_interval: "0 */6 * * *"
+
+tests:
+  # `script:` resolves from the REPOSITORY ROOT — unlike `metadata.default` and
+  # `catalog.logo` above, which resolve against this spec's own directory.
+  - name: smoke
+    script: zig/tests/smoke.star
+
+annotations:
+  # From the Phase 1.5 license gate:
+  #   $ gh api repos/ziglang/zig/license --jq '.license.spdx_id'
+  #   MIT
+  org.opencontainers.image.licenses: "MIT"
+
+announce:
+  # Spelled out, not derived from target.repository — the logical name and the
+  # physical path are related by convention only.
+  package: ziglang/zig
+  fork: ocx-contrib/index
